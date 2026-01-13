@@ -1,0 +1,67 @@
+//
+//  ImagePickerView.swift
+//  JUPEE
+//
+//  Created by Osvaldo Mosso on 1/13/26.
+//
+
+
+import SwiftUI
+import UIKit
+
+struct ImagePickerView: UIViewControllerRepresentable {
+    enum Source {
+        case camera
+        case photoLibrary
+
+        var uiKitSourceType: UIImagePickerController.SourceType {
+            switch self {
+            case .camera: return .camera
+            case .photoLibrary: return .photoLibrary
+            }
+        }
+    }
+
+    let source: Source
+    let onImagePicked: (UIImage) -> Void
+    let onCancel: () -> Void
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = source.uiKitSourceType
+        picker.delegate = context.coordinator
+        picker.allowsEditing = false
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onImagePicked: onImagePicked, onCancel: onCancel)
+    }
+
+    final class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        private let onImagePicked: (UIImage) -> Void
+        private let onCancel: () -> Void
+
+        init(onImagePicked: @escaping (UIImage) -> Void, onCancel: @escaping () -> Void) {
+            self.onImagePicked = onImagePicked
+            self.onCancel = onCancel
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            onCancel()
+        }
+
+        func imagePickerController(
+            _ picker: UIImagePickerController,
+            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+        ) {
+            if let image = info[.originalImage] as? UIImage {
+                onImagePicked(image)
+            } else {
+                onCancel()
+            }
+        }
+    }
+}

@@ -11,6 +11,11 @@ import SwiftUI
 struct ChatHomeView: View {
     @StateObject private var vm = ChatHomeViewModel()
 
+    @State private var showingImagePicker = false
+    @State private var pickerSource: ImagePickerView.Source = .camera
+    @State private var pickedImage: UIImage?
+    @State private var showingNoCameraAlert = false
+
     @State private var showingNewChatAlert = false
     @State private var newChatTitle = ""
 
@@ -19,13 +24,16 @@ struct ChatHomeView: View {
             List {
                 Section {
                     Button {
-                        vm.createThread(
-                            title: "New assignment (Camera)",
-                            preview: "Placeholder — camera ingestion next."
-                        )
+                        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                            pickerSource = .camera
+                            showingImagePicker = true
+                        } else {
+                            showingNoCameraAlert = true
+                        }
                     } label: {
                         Label("New assignment (Camera)", systemImage: "camera")
                     }
+
 
                     Button {
                         vm.createThread(
