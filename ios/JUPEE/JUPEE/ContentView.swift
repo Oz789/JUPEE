@@ -12,7 +12,7 @@ struct ContentView: View {
 
     var body: some View {
         if isLoggedIn {
-            ChatHomeView()
+            ChatRootHomeView()
         } else {
             LoginView {
                 isLoggedIn = true
